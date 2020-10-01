@@ -1,3 +1,4 @@
+const { createHash } = require('crypto');
 // Setup basic express server
 var express = require('express');
 var app = express();
@@ -5,6 +6,9 @@ var path = require('path');
 var server = require('http').createServer(app);
 var io = require('socket.io')(server);
 var port = process.env.PORT || 3000;
+
+
+
 
 server.listen(port, () => {
   console.log('Server listening at port %d', port);
@@ -30,18 +34,21 @@ io.on('connection', (socket) => {
   });
 
   // when the client emits 'add user', this listens and executes
-  socket.on('add user', (username) => {
+  socket.on('add user', (data) => {
     if (addedUser) return;
 
     // we store the username in the socket session for this client
-    socket.username = username;
+    socket.username = data.username;
     ++numUsers;
     addedUser = true;
+
+
     socket.emit('login', {
-      numUsers: numUsers
+      numUsers: numUsers, 
+      username:socket.username
     });
     // echo globally (all clients) that a person has connected
-    socket.broadcast.emit('user joined', {
+    io.emit('user joined', {
       username: socket.username,
       numUsers: numUsers
     });
@@ -65,11 +72,15 @@ io.on('connection', (socket) => {
   socket.on('disconnect', () => {
     if (addedUser) {
       --numUsers;
+      users.remove(socket.username);
+
 
       // echo globally that this client has left
-      socket.broadcast.emit('user left', {
+      io.emit('user left', {
         username: socket.username,
-        numUsers: numUsers
+        numUsers: numUsers,
+        users:users,
+
       });
     }
   });

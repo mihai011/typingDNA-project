@@ -72,11 +72,26 @@ ul {
   width: 400px;
 }
 
+.login.page .form .inputText {
+  background-color: transparent;
+  border: none;
+  border-bottom: 2px solid rgb(255, 255, 255);
+  outline: none;
+  padding-bottom: 15px;
+  text-align: center;
+  width: 400px;
+}
+
 .login.page .title {
   font-size: 200%;
 }
 
 .login.page .usernameInput {
+  font-size: 200%;
+  letter-spacing: 3px;
+}
+
+.login.page .inputText {
   font-size: 200%;
   letter-spacing: 3px;
 }
@@ -146,4 +161,16 @@ ul {
   position: absolute;
   right: 0;
   width: 100%;
+}
+
+.column {
+  float: left;
+  width: 50%;
+}
+
+/* Clear floats after the columns */
+.row:after {
+  content: "";
+  display: table;
+  clear: both;
 }

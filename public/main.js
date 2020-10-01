@@ -12,17 +12,19 @@ $(function() {
   var $usernameInput = $('.usernameInput'); // Input for username
   var $messages = $('.messages'); // Messages area
   var $inputMessage = $('.inputMessage'); // Input message input box
+  var $inputText = $('.inputText'); //Input text for input box
+  var $scoreTable = $('.scoreTable'); // shows the curreent score with the rest of the players
 
   var $loginPage = $('.login.page'); // The login page
   var $chatPage = $('.chat.page'); // The chatroom page
 
   // Prompt for setting a username
   var username;
+  var patternText;
   var connected = false;
   var typing = false;
   var lastTypingTime;
   var $currentInput = $usernameInput.focus();
-
   var socket = io();
 
   const addParticipantsMessage = (data) => {
@@ -32,22 +34,27 @@ $(function() {
     } else {
       message += "there are " + data.numUsers + " participants";
     }
+
     log(message);
   }
 
   // Sets the client's username
-  const setUsername = () => {
+  const setUsernameAndPattern = () => {
     username = cleanInput($usernameInput.val().trim());
-
+    patternText = cleanInput($inputText.val());
     // If the username is valid
-    if (username) {
+    if (username && patternText) {
       $loginPage.fadeOut();
       $chatPage.show();
       $loginPage.off('click');
       $currentInput = $inputMessage.focus();
+      
 
       // Tell the server your username
-      socket.emit('add user', username);
+      socket.emit('add user', 
+      {username:username,
+      patternText:patternText
+    });
     }
   }
 
@@ -65,6 +72,7 @@ $(function() {
       });
       // tell server to execute 'new message' and send along one parameter
       socket.emit('new message', message);
+
     }
   }
 
@@ -191,32 +199,26 @@ $(function() {
   // Keyboard events
 
   $window.keydown(event => {
-    // Auto-focus the current input when a key is typed
-    if (!(event.ctrlKey || event.metaKey || event.altKey)) {
-      $currentInput.focus();
-    }
+
     // When the client hits ENTER on their keyboard
     if (event.which === 13) {
-      if (username) {
+      if (username && patternText) {
         sendMessage();
         socket.emit('stop typing');
         typing = false;
       } else {
-        setUsername();
+        if ($usernameInput.val() != ""){
+          $inputText.focus();
+        }else{
+          $usernameInput.focus();
+          }
+      if ($usernameInput.val() != "" && $inputText.val() != ""){
+        setUsernameAndPattern();}
       }
     }
   });
-
-  $inputMessage.on('input', () => {
-    updateTyping();
-  });
-
   // Click events
 
-  // Focus input when clicking anywhere on login page
-  $loginPage.click(() => {
-    $currentInput.focus();
-  });
 
   // Focus input when clicking on the message input's border
   $inputMessage.click(() => {
@@ -229,9 +231,9 @@ $(function() {
   socket.on('login', (data) => {
     connected = true;
     // Display the welcome message
-    var message = "Welcome to Socket.IO Chat – ";
+    var message = "Welcome to Typing DNA Game – ";
     log(message, {
-      prepend: true
+      prepend: false
     });
     addParticipantsMessage(data);
   });
@@ -245,6 +247,7 @@ $(function() {
   socket.on('user joined', (data) => {
     log(data.username + ' joined');
     addParticipantsMessage(data);
+    console.log(data.users);
   });
 
   // Whenever the server emits 'user left', log it in the chat body
@@ -252,6 +255,8 @@ $(function() {
     log(data.username + ' left');
     addParticipantsMessage(data);
     removeChatTyping(data);
+    console.log(data.users);
+    
   });
 
   // Whenever the server emits 'typing', show the typing message

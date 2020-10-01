@@ -1,24 +1,17 @@
 {
-  "name": "typingdna-project",
-  "version": "1.0.0",
-  "description": "",
+  "name": "socket.io-chat",
+  "version": "0.0.0",
+  "description": "A simple chat client using socket.io",
   "main": "index.js",
+  "author": "Grant Timmerman",
+  "private": true,
+  "license": "BSD",
+  "dependencies": {
+    "express": "~4.17.1",
+    "package.json": "^2.0.1",
+    "socket.io": "~2.3.0"
+  },
   "scripts": {
     "start": "node index.js"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/mihai011/typingDNA-project.git"
-  },
-  "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/mihai011/typingDNA-project/issues"
-  },
-  "homepage": "https://github.com/mihai011/typingDNA-project#readme",
-  "dependencies": {
-    "express": "^4.17.1",
-    "socket.io": "^2.3.0",
-    "surge": "^0.21.6"
   }
 }

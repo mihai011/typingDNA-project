@@ -264,7 +264,7 @@ $(function() {
   });
 
   socket.on('update score', (data)=>{
-    $scoreTable.append(data.user, data.score);
+    $scoreTable.append("<li>"+data.user+" "+data.score + "</li>");
   })
 
   // Whenever the server emits 'user left', log it in the chat body

@@ -48,9 +48,9 @@ io.on('connection', (socket) => {
     socket.pattern = data.pattern;
     ++numUsers;
     addedUser = true;
-
-    patterns[socket.username] = socket.pattern
-
+    if (socket.pattern != undefined){
+      patterns[socket.username] = socket.pattern
+    }
     socket.emit('login', {
       numUsers: numUsers, 
       username:socket.username

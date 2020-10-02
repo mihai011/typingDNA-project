@@ -6,8 +6,9 @@ var path = require('path');
 var server = require('http').createServer(app);
 var io = require('socket.io')(server);
 var port = process.env.PORT || 3000;
+var checks = require('./check_pattern.js');
 
-
+var patterns = {};
 
 
 server.listen(port, () => {
@@ -27,10 +28,15 @@ io.on('connection', (socket) => {
   // when the client emits 'new message', this listens and executes
   socket.on('new message', (data) => {
     // we tell the client to execute 'new message'
+    data.pattern;
+
     socket.broadcast.emit('new message', {
       username: socket.username,
-      message: data
+      message: data.message
     });
+
+    checks.check_patterns(socket, data.pattern, patterns);
+
   });
 
   // when the client emits 'add user', this listens and executes
@@ -39,9 +45,11 @@ io.on('connection', (socket) => {
 
     // we store the username in the socket session for this client
     socket.username = data.username;
+    socket.pattern = data.pattern;
     ++numUsers;
     addedUser = true;
 
+    patterns[socket.username] = socket.pattern
 
     socket.emit('login', {
       numUsers: numUsers, 
@@ -72,15 +80,13 @@ io.on('connection', (socket) => {
   socket.on('disconnect', () => {
     if (addedUser) {
       --numUsers;
-      users.remove(socket.username);
+      delete patterns[socket.username];
 
 
       // echo globally that this client has left
       io.emit('user left', {
         username: socket.username,
         numUsers: numUsers,
-        users:users,
-
       });
     }
   });

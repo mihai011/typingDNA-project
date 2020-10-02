@@ -27,6 +27,13 @@ $(function() {
   var $currentInput = $usernameInput.focus();
   var socket = io();
 
+  var tdna = new TypingDNA();
+  var patternObject;  
+  tdna.addTarget("pattern_message")
+  tdna.addTarget("pattern_name")
+  tdna.addTarget("pattern_text")
+
+
   const addParticipantsMessage = (data) => {
     var message = '';
     if (data.numUsers === 1) {
@@ -53,7 +60,7 @@ $(function() {
       // Tell the server your username
       socket.emit('add user', 
       {username:username,
-      patternText:patternText
+      pattern:patternObject
     });
     }
   }
@@ -71,7 +78,7 @@ $(function() {
         message: message
       });
       // tell server to execute 'new message' and send along one parameter
-      socket.emit('new message', message);
+      socket.emit('new message', {message:message, pattern:patternObject});
 
     }
   }
@@ -203,7 +210,9 @@ $(function() {
     // When the client hits ENTER on their keyboard
     if (event.which === 13) {
       if (username && patternText) {
+        patternObject = tdna.getTypingPattern({type:0, targetId:"pattern_message"});
         sendMessage();
+        tdna.reset();
         socket.emit('stop typing');
         typing = false;
       } else {
@@ -212,10 +221,14 @@ $(function() {
         }else{
           $usernameInput.focus();
           }
-      if ($usernameInput.val() != "" && $inputText.val() != ""){
-        setUsernameAndPattern();}
+        if ($usernameInput.val() != "" && $inputText.val() != ""){
+          patternObject = tdna.getTypingPattern({type:0, targetId:"pattern_text"});
+          setUsernameAndPattern();}
+          tdna.reset();
       }
     }
+
+
   });
   // Click events
 
@@ -250,13 +263,15 @@ $(function() {
     console.log(data.users);
   });
 
+  socket.on('update score', (data)=>{
+    $scoreTable.append(data.user, data.score);
+  })
+
   // Whenever the server emits 'user left', log it in the chat body
   socket.on('user left', (data) => {
     log(data.username + ' left');
     addParticipantsMessage(data);
     removeChatTyping(data);
-    console.log(data.users);
-    
   });
 
   // Whenever the server emits 'typing', show the typing message
@@ -276,7 +291,7 @@ $(function() {
   socket.on('reconnect', () => {
     log('you have been reconnected');
     if (username) {
-      socket.emit('add user', username);
+      socket.emit('add user', {username:username});
     }
   });
 

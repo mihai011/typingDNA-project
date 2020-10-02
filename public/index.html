@@ -11,22 +11,23 @@
       <div class="chatArea">
         <div class="row">
           <div class="column"><ul class="messages"></ul></div>
-          <div class="column"></div><div class="scoreTable"></div>
+          <div class="column"></div><ul class="scoreTable"></ul>
         </div>
       </div>
-      <input class="inputMessage" placeholder="Type here..."/>
+      <input id="pattern_message" class="inputMessage" placeholder="Type here..."/>
     </li>
     <li class="login page">
       <div class="form">
         <h3 class="title">What's your nickname?</h3>
         <input class="usernameInput" type="text" maxlength="14" />
         <h3 class="title">Write something to create your pattern...</h3>
-        <input class="inputText" type="text"  minlength="10" maxlength="120" />
+        <input id="pattern_text" class="inputText" type="text"  minlength="10" maxlength="120" />
       </div>
     </li>
   </ul>
 
   <script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
+  <script src="https://typingdna.com/scripts/typingdna.js"></script>  
   <script src="/socket.io/socket.io.js"></script>
   <script src="/main.js"></script>
 </body>

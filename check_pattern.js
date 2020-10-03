@@ -2,11 +2,23 @@ var https = require('https');
 var querystring = require('querystring');
 var base_url = 'api.typingdna.com';
 
-
 var apiKey = '';
 var apiSecret = '';
 
-function check_patterns(socket,message_pattern, patterns ){
+
+fs = require('fs')
+fs.readFile('./keys.txt', 'utf8', function (err,data) {
+  if (err) {
+    return console.log(err);
+  }
+  data = data.split("\n");
+  apiKey = data[0];
+  apiSecret = data[1];
+});
+
+
+
+function check_patterns(io, socket,message_pattern, patterns ){
 
     Object.keys(patterns).forEach(user => {
 
@@ -37,10 +49,16 @@ function check_patterns(socket,message_pattern, patterns ){
                 });
     
                 res.on('end', function() {
-    
+                    
                     responseData = JSON.parse(responseData);
                     console.log(responseData);
-                    socket.emit('update score', {user:user, score:responseData.net_score})
+                    if(responseData.net_data > 70){
+                        io.emit('elimination', {winner:socket.username,loser:user});
+                    }
+                    else{
+                        socket.emit('update score', {user:user, score:responseData.net_score});
+                    }
+                   
                     responseData = "";
                 });
             });

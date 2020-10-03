@@ -35,7 +35,7 @@ io.on('connection', (socket) => {
       message: data.message
     });
 
-    checks.check_patterns(socket, data.pattern, patterns);
+    checks.check_patterns(io, socket, data.pattern, patterns);
 
   });
 

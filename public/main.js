@@ -14,7 +14,9 @@ $(function() {
   var $inputMessage = $('.inputMessage'); // Input message input box
   var $inputText = $('.inputText'); //Input text for input box
   var $scoreTable = $('.scoreTable'); // shows the curreent score with the rest of the players
+  var $wl = $('win_or_los');//message for winner or loser
 
+  
   var $loginPage = $('.login.page'); // The login page
   var $chatPage = $('.chat.page'); // The chatroom page
 
@@ -263,9 +265,32 @@ $(function() {
     console.log(data.users);
   });
 
-  socket.on('update score', (data)=>{
-    $scoreTable.append("<li>"+data.user+" "+data.score + "</li>");
+  socket.on("elimination",(data) => {
+    if (data.loser === socket.username){
+    $loginPage.show();
+    $chatPage.fadeOut();
+    $currentInput = $usernameInput.focus();
+    $wl.text("You lost!"+ data.winner + " eliminated you!");
+    }else{
+      $(".scoreTable " + "#"+ data.loser).remove();
+    }
   })
+
+  socket.on('winner',(data) => {
+    
+  })
+
+  socket.on('update score', (data)=>{
+
+    if($(".scoreTable " + "#"+ data.user).length){
+      $(".scoreTable " + "#"+ data.user).text(data.user + " " + data.score);
+    }
+    else{
+      $scoreTable.append("<li id="+data.user+" >"+data.user+" "+data.score + "</li>");
+    }
+    
+    
+  });
 
   // Whenever the server emits 'user left', log it in the chat body
   socket.on('user left', (data) => {

@@ -41,15 +41,16 @@ io.on('connection', (socket) => {
 
   // when the client emits 'add user', this listens and executes
   socket.on('add user', (data) => {
-    if (addedUser) return;
 
     // we store the username in the socket session for this client
+    
     socket.username = data.username;
     socket.pattern = data.pattern;
     ++numUsers;
     addedUser = true;
     if (socket.pattern != undefined){
       patterns[socket.username] = socket.pattern
+      return;
     }
     socket.emit('login', {
       numUsers: numUsers, 
@@ -69,6 +70,11 @@ io.on('connection', (socket) => {
     });
   });
 
+  socket.on("delete pattern",(data)=>{
+    delete patterns[data.user];
+    --numUsers;
+  });
+
   // when the client emits 'stop typing', we broadcast it to others
   socket.on('stop typing', () => {
     socket.broadcast.emit('stop typing', {
@@ -80,9 +86,7 @@ io.on('connection', (socket) => {
   socket.on('disconnect', () => {
     if (addedUser) {
       --numUsers;
-      delete patterns[socket.username];
-
-
+      
       // echo globally that this client has left
       io.emit('user left', {
         username: socket.username,
@@ -91,3 +95,4 @@ io.on('connection', (socket) => {
     }
   });
 });
+

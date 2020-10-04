@@ -93,6 +93,10 @@ ul {
   font-size: 200%;
 }
 
+.login.page .win_or_loss {
+  font-size: 200%;
+}
+
 .login.page .usernameInput {
   font-size: 200%;
   letter-spacing: 3px;

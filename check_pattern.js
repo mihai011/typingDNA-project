@@ -1,5 +1,6 @@
 var https = require('https');
 var querystring = require('querystring');
+var index = require("./index.js");
 var base_url = 'api.typingdna.com';
 
 var apiKey = '';
@@ -52,7 +53,7 @@ function check_patterns(io, socket,message_pattern, patterns ){
                     
                     responseData = JSON.parse(responseData);
                     console.log(responseData);
-                    if(responseData.net_data > 70){
+                    if(responseData.net_score >= 40){
                         io.emit('elimination', {winner:socket.username,loser:user});
                     }
                     else{

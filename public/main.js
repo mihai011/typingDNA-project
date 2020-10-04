@@ -14,7 +14,7 @@ $(function() {
   var $inputMessage = $('.inputMessage'); // Input message input box
   var $inputText = $('.inputText'); //Input text for input box
   var $scoreTable = $('.scoreTable'); // shows the curreent score with the rest of the players
-  var $wl = $('win_or_los');//message for winner or loser
+  var $wl = $('win_or_loss');//message for winner or loser
 
   
   var $loginPage = $('.login.page'); // The login page
@@ -58,7 +58,6 @@ $(function() {
       $loginPage.off('click');
       $currentInput = $inputMessage.focus();
       
-
       // Tell the server your username
       socket.emit('add user', 
       {username:username,
@@ -266,19 +265,28 @@ $(function() {
   });
 
   socket.on("elimination",(data) => {
-    if (data.loser === socket.username){
+    if (data.loser === username){
     $loginPage.show();
     $chatPage.fadeOut();
     $currentInput = $usernameInput.focus();
     $wl.text("You lost!"+ data.winner + " eliminated you!");
+    socket.emit("delete pattern", {user:username});
+    username = "";
+    patternText = "";
+    tdna.reset();
+    $inputText.val("");
     }else{
       $(".scoreTable " + "#"+ data.loser).remove();
+      log(data.loser + " is eliminated!");
     }
   })
 
   socket.on('winner',(data) => {
-    
-  })
+    $loginPage.show();
+    $chatPage.fadeOut();
+    $currentInput = $usernameInput.focus();
+    $wl.text("You won!");
+  });
 
   socket.on('update score', (data)=>{
 

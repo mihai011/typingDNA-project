@@ -8,8 +8,22 @@ var io = require('socket.io')(server);
 var port = process.env.PORT || 3000;
 var checks = require('./check_pattern.js');
 
-var patterns = {};
+String.prototype.hashCode = function() {
+  var hash = 0;
+  if (this.length == 0) {
+      return hash;
+  }
+  for (var i = 0; i < this.length; i++) {
+      var char = this.charCodeAt(i);
+      hash = ((hash<<5)-hash)+char;
+      hash = hash & hash; // Convert to 32bit integer
+  }
+  return hash;
+};
 
+
+var users = {};
+var numUsers = 0;
 
 server.listen(port, () => {
   console.log('Server listening at port %d', port);
@@ -18,9 +32,7 @@ server.listen(port, () => {
 // Routing
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Chatroom
-
-var numUsers = 0;
+// battle ground
 
 io.on('connection', (socket) => {
   var addedUser = false;
@@ -28,37 +40,37 @@ io.on('connection', (socket) => {
   // when the client emits 'new message', this listens and executes
   socket.on('new message', (data) => {
     // we tell the client to execute 'new message'
-    data.pattern;
 
     socket.broadcast.emit('new message', {
       username: socket.username,
       message: data.message
     });
 
-    checks.check_patterns(io, socket, data.pattern, patterns);
+    checks.check_patterns(io, socket, data.pattern, users);
 
   });
 
   // when the client emits 'add user', this listens and executes
   socket.on('add user', (data) => {
 
-    // we store the username in the socket session for this client
-    
-    socket.username = data.username;
-    socket.pattern = data.pattern;
     ++numUsers;
-    addedUser = true;
-    if (socket.pattern != undefined){
-      patterns[socket.username] = socket.pattern
-      return;
+    // we store the username in the socket session for this client
+    // in case it's new  
+    if (data.pattern != undefined){
+      users[data.username] = data.username.hashCode();
+      checks.save_pattern(users[data.username], data.pattern);
+      addedUser = true;
+      socket.username = data.username;
     }
+    //else we go on as usually
     socket.emit('login', {
       numUsers: numUsers, 
-      username:socket.username
+      username:data.username
     });
+
     // echo globally (all clients) that a person has connected
     io.emit('user joined', {
-      username: socket.username,
+      username: data.username,
       numUsers: numUsers
     });
   });
@@ -71,7 +83,7 @@ io.on('connection', (socket) => {
   });
 
   socket.on("delete pattern",(data)=>{
-    delete patterns[data.user];
+    delete users[data.user];
     --numUsers;
   });
 

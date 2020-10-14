@@ -1,12 +1,11 @@
 
-# Socket.IO Chat
+# Typing DNA hackathon project
 
-A simple chat demo for socket.io
+
 
 ## How to use
 
 ```
-$ npm ci
 $ npm start
 ```
 
@@ -15,8 +14,7 @@ a port by supplying the `PORT` env variable.
 
 ## Features
 
-- Multiple users can join a chat room by each entering a unique username
-on website load.
-- Users can type chat messages to the chat room.
-- A notification is sent to all users when a user joins or leaves
-the chatroom.
+You can enter your player name, and text to register your pattern.
+After that you start to emulate otherr writing pattern to kick them of the game.
+
+

@@ -56,7 +56,7 @@ io.on('connection', (socket) => {
     ++numUsers;
     // we store the username in the socket session for this client
     // in case it's new  
-    if (data.pattern != undefined){
+    if (data.pattern != undefined && data.username != ""){
       users[data.username] = data.username.hashCode();
       checks.save_pattern(users[data.username], data.pattern);
       addedUser = true;
@@ -83,8 +83,23 @@ io.on('connection', (socket) => {
   });
 
   socket.on("delete pattern",(data)=>{
+    checks.delete_pattern(users[data.user]);
     delete users[data.user];
     --numUsers;
+    if(numUsers === 1){
+      winner = Object.keys(users)[0];
+      socket.broadcast.emit("winner",{
+        winner:winner
+      });
+      // clean up the patterns from remaining users
+      Object.keys(users).forEach(user=>{
+        checks.delete_pattern(users[winner]);
+      });
+      numUsers=0;
+      console.log("User " + winner + " won!");
+      console.log("Cleaned Up!");
+      users = {};
+    }
   });
 
   // when the client emits 'stop typing', we broadcast it to others

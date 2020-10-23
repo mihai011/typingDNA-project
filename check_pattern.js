@@ -54,12 +54,11 @@ function check_patterns(io, socket, message_pattern, users){
                     console.log(responseData);
                     if(responseData.net_score >= 50){
                         io.emit('elimination', {winner:socket.username,loser:user});
-                        console.log("user "+user+" eliminated");
+                        console.log("User "+user+" eliminated");
                     }
                     else{
                         socket.emit('update score', {user:user, score:responseData.net_score});
                     }
-                   
                     responseData = "";
                 });
             });
@@ -120,5 +119,40 @@ function save_pattern(username, pattern){
 }
 
 
+function delete_pattern(id){
+
+    var id = id;
+
+
+    var options = {
+        hostname : base_url,
+        port : 443,
+        path : '/user/' + id,
+        method : 'DELETE',
+        headers: {
+            'Cache-Control': 'no-cache',
+            'Authorization': 'Basic ' + new Buffer(apiKey + ':' + apiSecret).toString('base64'),
+        },
+    };
+
+    var responseData = '';
+    var req = https.request(options, function(res) {
+        res.on('data', function(chunk) {
+            responseData += chunk;
+        });
+
+        res.on('end', function() {
+            console.log(JSON.parse(responseData));
+        });
+    });
+
+    req.on('error', function(e) {
+        console.error(e);
+    });
+
+    req.end();
+}
+
 exports.check_patterns = check_patterns;
 exports.save_pattern = save_pattern;
+exports.delete_pattern = delete_pattern;

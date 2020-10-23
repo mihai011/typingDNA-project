@@ -14,7 +14,7 @@ $(function() {
   var $inputMessage = $('.inputMessage'); // Input message input box
   var $inputText = $('.inputText'); //Input text for input box
   var $scoreTable = $('.scoreTable'); // shows the curreent score with the rest of the players
-  var $wl = $('win_or_loss');//message for winner or loser
+  var $wl = $('.winorloss');//message for winner or loser
 
   
   var $loginPage = $('.login.page'); // The login page
@@ -145,7 +145,7 @@ $(function() {
       options.fade = true;
     }
     if (typeof options.prepend === 'undefined') {
-      options.prepend = false;
+      options.prepend = true;
     }
 
     // Apply options
@@ -202,6 +202,17 @@ $(function() {
     // Calculate color
     var index = Math.abs(hash % COLORS.length);
     return COLORS[index];
+  }
+
+  //full reset function 
+  const fullReset = () => {
+    $loginPage.show();
+    $chatPage.fadeOut();
+    $currentInput = $usernameInput.focus();
+    username = "";
+    patternText = "";
+    tdna.reset();
+    $inputText.val("");
   }
 
   // Keyboard events
@@ -266,26 +277,27 @@ $(function() {
 
   socket.on("elimination",(data) => {
     if (data.loser === username){
-    $loginPage.show();
-    $chatPage.fadeOut();
-    $currentInput = $usernameInput.focus();
     $wl.text("You lost!"+ data.winner + " eliminated you!");
     socket.emit("delete pattern", {user:username});
-    username = "";
-    patternText = "";
-    tdna.reset();
-    $inputText.val("");
+    fullReset();
     }else{
-      $(".scoreTable " + "#"+ data.loser).remove();
-      log(data.loser + " is eliminated!");
+      if (data.winner === username){
+        $(".scoreTable " + "#"+ data.loser).remove();
+        log(data.loser + " is eliminated by you!");
+      }else{
+        $(".scoreTable " + "#"+ data.loser).remove();
+        log(data.loser + " is eliminated by " + data.winner+"!");
+      }
+      
     }
   })
 
   socket.on('winner',(data) => {
-    $loginPage.show();
-    $chatPage.fadeOut();
-    $currentInput = $usernameInput.focus();
-    $wl.text("You won!");
+    
+    if (data.winner === username){
+      $wl.text("You won!");
+    }
+    fullReset();
   });
 
   socket.on('update score', (data)=>{

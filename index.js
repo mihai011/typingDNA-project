@@ -22,6 +22,7 @@ String.prototype.hashCode = function() {
 };
 
 
+
 var users = {};
 var numUsers = 0;
 
@@ -53,7 +54,9 @@ io.on('connection', (socket) => {
   // when the client emits 'add user', this listens and executes
   socket.on('add user', (data) => {
 
-    ++numUsers;
+      ++numUsers;
+
+
     // we store the username in the socket session for this client
     // in case it's new  
     if (data.pattern != undefined && data.username != ""){
@@ -86,14 +89,16 @@ io.on('connection', (socket) => {
     checks.delete_pattern(users[data.user]);
     delete users[data.user];
     --numUsers;
+    console.log(`${numUsers} users`);
+
     if(numUsers === 1){
       winner = Object.keys(users)[0];
       socket.broadcast.emit("winner",{
         winner:winner
       });
-      // clean up the patterns from remaining users
+      // clean up the patterns from remaining users who might have disconnected or left
       Object.keys(users).forEach(user=>{
-        checks.delete_pattern(users[winner]);
+        checks.delete_pattern(users[user]);
       });
       numUsers=0;
       console.log("User " + winner + " won!");
@@ -112,7 +117,25 @@ io.on('connection', (socket) => {
   // when the user disconnects.. perform this
   socket.on('disconnect', () => {
     if (addedUser) {
-      --numUsers;
+      checks.delete_pattern(users[socket.username]);
+      delete users[socket.username];
+      if (numUsers > 1){
+        --numUsers;
+      }
+      if(numUsers === 1){
+        winner = Object.keys(users)[0];
+        socket.broadcast.emit("winner",{
+          winner:winner
+        });
+        // clean up the patterns from remaining users who might have disconnected or left
+        Object.keys(users).forEach(user=>{
+          checks.delete_pattern(users[user]);
+        });
+        numUsers=0;
+        console.log("User " + winner + " won!");
+        console.log("Cleaned Up!");
+        users = {};
+      }
       
       // echo globally that this client has left
       io.emit('user left', {

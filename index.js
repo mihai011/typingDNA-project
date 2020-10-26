@@ -28,6 +28,7 @@ var numUsers = 0;
 
 server.listen(port, () => {
   console.log('Server listening at port %d', port);
+  console.log(`This process is pid ${process.pid}`);
 });
 
 // Routing
@@ -54,11 +55,14 @@ io.on('connection', (socket) => {
   // when the client emits 'add user', this listens and executes
   socket.on('add user', (data) => {
 
+    if (!(data.username in users)){
       ++numUsers;
+    }
+    
 
 
     // we store the username in the socket session for this client
-    // in case it's new  
+    // in case it's new , together with the other data
     if (data.pattern != undefined && data.username != ""){
       users[data.username] = data.username.hashCode();
       checks.save_pattern(users[data.username], data.pattern);
@@ -96,14 +100,14 @@ io.on('connection', (socket) => {
       socket.broadcast.emit("winner",{
         winner:winner
       });
-      // clean up the patterns from remaining users who might have disconnected or left
-      Object.keys(users).forEach(user=>{
-        checks.delete_pattern(users[user]);
-      });
+      // clean up the patterns from last user
+      checks.delete_pattern(users[winner]);
+
       numUsers=0;
+      users = {};
       console.log("User " + winner + " won!");
       console.log("Cleaned Up!");
-      users = {};
+      
     }
   });
 
@@ -117,20 +121,19 @@ io.on('connection', (socket) => {
   // when the user disconnects.. perform this
   socket.on('disconnect', () => {
     if (addedUser) {
-      checks.delete_pattern(users[socket.username]);
-      delete users[socket.username];
+      
       if (numUsers > 1){
         --numUsers;
+        checks.delete_pattern(users[socket.username]);
+        delete users[socket.username];
       }
       if(numUsers === 1){
         winner = Object.keys(users)[0];
         socket.broadcast.emit("winner",{
           winner:winner
         });
-        // clean up the patterns from remaining users who might have disconnected or left
-        Object.keys(users).forEach(user=>{
-          checks.delete_pattern(users[user]);
-        });
+        // clean up the patterns from the last user
+        checks.delete_pattern(users[winner]);
         numUsers=0;
         console.log("User " + winner + " won!");
         console.log("Cleaned Up!");
@@ -146,3 +149,19 @@ io.on('connection', (socket) => {
   });
 });
 
+process.on('SIGTERM', () => {
+  console.info('SIGTERM signal received.');
+  console.log('Closing http server.');
+  console.log('Deleting users.');
+  // boolean means [force], see in mongoose doc
+  server.close();
+  for (var user in users)
+  {
+    if (users.hasOwnProperty(user)) {           
+      checks.delete_pattern(users[user]);
+    }
+  }
+  console.log("http server closed");
+  process.exit(0);
+
+});

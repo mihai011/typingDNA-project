@@ -277,7 +277,7 @@ $(function() {
 
   socket.on("elimination",(data) => {
     if (data.loser === username){
-    $wl.text("You lost!"+ data.winner + " eliminated you!");
+    $wl.text("You lost! "+ data.winner + " eliminated you!");
     socket.emit("delete pattern", {user:username});
     fullReset();
     }else{
@@ -309,7 +309,6 @@ $(function() {
       $scoreTable.append("<li id="+data.user+" >"+data.user+" "+data.score + "</li>");
     }
     
-    
   });
 
   // Whenever the server emits 'user left', log it in the chat body
@@ -331,14 +330,16 @@ $(function() {
 
   socket.on('disconnect', () => {
     log('you have been disconnected');
+    fullReset();
+    $wl.text("Oops! looks like you have been disconnected!");
   });
 
-  socket.on('reconnect', () => {
-    log('you have been reconnected');
-    if (username) {
-      socket.emit('add user', {username:username});
-    }
-  });
+  // socket.on('reconnect', () => {
+  //   log('you have been reconnected');
+  //   if (username) {
+  //     socket.emit('add user', {username:username});
+  //   }
+  // });
 
   socket.on('reconnect_error', () => {
     log('attempt to reconnect has failed');

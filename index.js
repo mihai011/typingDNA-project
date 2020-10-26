@@ -5,6 +5,8 @@ var app = express();
 var path = require('path');
 var server = require('http').createServer(app);
 var io = require('socket.io')(server);
+const dotenv = require('dotenv');
+dotenv.config();
 var port = process.env.PORT || 3000;
 var checks = require('./check_pattern.js');
 

@@ -2,20 +2,8 @@ var https = require('https');
 var querystring = require('querystring');
 var base_url = 'api.typingdna.com';
 
-var apiKey = '';
-var apiSecret = '';
-
-//read the secrets so we can get on with our life 
-fs = require('fs')
-fs.readFile('./keys.txt', 'utf8', function (err,data) {
-  if (err) {
-    return console.log(err);
-  }
-  data = data.split("\n");
-  apiKey = data[0];
-  apiSecret = data[1];
-});
-
+var apiKey = process.env.APIKEY;
+var apiSecret = process.env.APISECRET;
 
 
 function check_patterns(io, socket, message_pattern, users){

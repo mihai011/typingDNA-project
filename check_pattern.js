@@ -40,7 +40,7 @@ function check_patterns(io, socket, message_pattern, users){
                     
                     responseData = JSON.parse(responseData);
                     console.log(responseData);
-                    if(responseData.net_score >= 50){
+                    if(responseData.net_score >= parseInt(process.env.THRESHOLD)){
                         io.emit('elimination', {winner:socket.username,loser:user});
                         console.log("User "+user+" eliminated");
                     }

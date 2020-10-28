@@ -7,6 +7,7 @@ $(function() {
     '#3b88eb', '#3824aa', '#a700ff', '#d300e7'
   ];
 
+
   // Initialize variables
   var $window = $(window);
   var $usernameInput = $('.usernameInput'); // Input for username
@@ -65,6 +66,7 @@ $(function() {
     });
     }
   }
+
 
   // Sends a chat message
   const sendMessage = () => {
@@ -303,10 +305,14 @@ $(function() {
   socket.on('update score', (data)=>{
 
     if($(".scoreTable " + "#"+ data.encoded).length){
-      $(".scoreTable " + "#"+ data.encoded).text(data.user + " " + data.score);
+      $(".scoreTable " + "#"+ data.encoded)
+      .text(data.user + " " + data.score);
+      
     }
     else{
-      $scoreTable.append("<li id="+data.encoded+" >"+data.user+" "+data.score + "</li>");
+      $scoreTable.append("<li id="+data.encoded+" ></li>");
+      $(".scoreTable " + "#"+ data.encoded).text(data.user + " " + data.score)
+      .css('color', getUsernameColor(data.user));
     }
     
   });
@@ -334,15 +340,5 @@ $(function() {
     $wl.text("Oops! looks like you have been disconnected!");
   });
 
-  // socket.on('reconnect', () => {
-  //   log('you have been reconnected');
-  //   if (username) {
-  //     socket.emit('add user', {username:username});
-  //   }
-  // });
-
-  socket.on('reconnect_error', () => {
-    log('attempt to reconnect has failed');
-  });
 
 });

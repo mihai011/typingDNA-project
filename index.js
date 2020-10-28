@@ -169,7 +169,7 @@ process.on('SIGTERM', () => {
   for (var user in users)
   {
     if (users.hasOwnProperty(user)) {           
-      checks.delete_pattern(users[user]);
+      checks.delete_pattern(users[user]["hash"]);
     }
   }
   console.log("http server closed");

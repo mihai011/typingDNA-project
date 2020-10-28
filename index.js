@@ -1,4 +1,3 @@
-const { createHash } = require('crypto');
 // Setup basic express server
 var express = require('express');
 var app = express();
@@ -10,6 +9,7 @@ dotenv.config();
 var port = process.env.PORT || 3000;
 var checks = require('./check_pattern.js');
 
+// hash function for storing pattern 
 String.prototype.hashCode = function() {
   var hash = 0;
   if (this.length == 0) {
@@ -21,6 +21,15 @@ String.prototype.hashCode = function() {
       hash = hash & hash; // Convert to 32bit integer
   }
   return hash;
+}
+
+// encoding function but it can be any encode function, as long it is supported on CSS
+String.prototype.encode = function() {
+  //eliminate spaces and numbers
+  str = this.replace(/^[\s\d]+/, '');
+  str = str.replace(/\s/g, '');
+
+  return str;
 };
 
 
@@ -66,8 +75,8 @@ io.on('connection', (socket) => {
     // we store the username in the socket session for this client
     // in case it's new , together with the other data
     if (data.pattern != undefined && data.username != ""){
-      users[data.username] = data.username.hashCode();
-      checks.save_pattern(users[data.username], data.pattern);
+      users[data.username] = {"encoded":data.username.encode(), "hash":data.username.hashCode()};
+      checks.save_pattern(users[data.username]["hash"], data.pattern);
       addedUser = true;
       socket.username = data.username;
     }
@@ -92,7 +101,7 @@ io.on('connection', (socket) => {
   });
 
   socket.on("delete pattern",(data)=>{
-    checks.delete_pattern(users[data.user]);
+    checks.delete_pattern(users[data.user]["hash"]);
     delete users[data.user];
     --numUsers;
     console.log(`${numUsers} users`);
@@ -103,7 +112,7 @@ io.on('connection', (socket) => {
         winner:winner
       });
       // clean up the patterns from last user
-      checks.delete_pattern(users[winner]);
+      checks.delete_pattern(users[winner]["hash"]);
 
       numUsers=0;
       users = {};

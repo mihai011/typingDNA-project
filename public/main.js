@@ -282,10 +282,10 @@ $(function() {
     fullReset();
     }else{
       if (data.winner === username){
-        $(".scoreTable " + "#"+ data.loser).remove();
+        $(".scoreTable " + "#"+ data.encoded).remove();
         log(data.loser + " is eliminated by you!");
       }else{
-        $(".scoreTable " + "#"+ data.loser).remove();
+        $(".scoreTable " + "#"+ data.encoded).remove();
         log(data.loser + " is eliminated by " + data.winner+"!");
       }
       
@@ -302,11 +302,11 @@ $(function() {
 
   socket.on('update score', (data)=>{
 
-    if($(".scoreTable " + "#"+ data.user).length){
-      $(".scoreTable " + "#"+ data.user).text(data.user + " " + data.score);
+    if($(".scoreTable " + "#"+ data.encoded).length){
+      $(".scoreTable " + "#"+ data.encoded).text(data.user + " " + data.score);
     }
     else{
-      $scoreTable.append("<li id="+data.user+" >"+data.user+" "+data.score + "</li>");
+      $scoreTable.append("<li id="+data.encoded+" >"+data.user+" "+data.score + "</li>");
     }
     
   });

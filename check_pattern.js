@@ -12,7 +12,8 @@ function check_patterns(io, socket, message_pattern, users){
 
         if (user != socket.username){
 
-            var id = users[user];
+            var id = users[user]["hash"];
+            var encoded = users[user]["encoded"];
             var data = {
                 tp : message_pattern,
                 quality : 1,
@@ -41,11 +42,11 @@ function check_patterns(io, socket, message_pattern, users){
                     responseData = JSON.parse(responseData);
                     console.log(responseData);
                     if(responseData.net_score >= parseInt(process.env.THRESHOLD)){
-                        io.emit('elimination', {winner:socket.username,loser:user});
+                        io.emit('elimination', {encoded:encoded, winner:socket.username,loser:user});
                         console.log("User "+user+" eliminated");
                     }
                     else{
-                        socket.emit('update score', {user:user, score:responseData.net_score});
+                        socket.emit('update score', {encoded:encoded, user:user, score:responseData.net_score});
                     }
                     responseData = "";
                 });
@@ -67,9 +68,9 @@ function check_patterns(io, socket, message_pattern, users){
 
 };
 
-function save_pattern(username, pattern){
+function save_pattern(hash, pattern){
 
-    var id  = username;
+    var id  = hash;
     var data = {
         tp : pattern,
      }
@@ -110,7 +111,6 @@ function save_pattern(username, pattern){
 function delete_pattern(id){
 
     var id = id;
-
 
     var options = {
         hostname : base_url,

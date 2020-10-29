@@ -9,6 +9,13 @@ dotenv.config();
 var port = process.env.PORT || 3000;
 var checks = require('./check_pattern.js');
 
+
+async function asyncCall(argument, callback){
+
+  await callback(argument);
+
+}
+
 // hash function for storing pattern 
 String.prototype.hashCode = function() {
   var hash = 0;
@@ -69,8 +76,6 @@ io.on('connection', (socket) => {
     if (!(data.username in users)){
       ++numUsers;
     }
-    
-
 
     // we store the username in the socket session for this client
     // in case it's new , together with the other data
@@ -135,7 +140,7 @@ io.on('connection', (socket) => {
       
       if (numUsers > 1){
         --numUsers;
-        checks.delete_pattern(users[socket.username]);
+        checks.delete_pattern(users[socket.username]["hash"]);
         delete users[socket.username];
       }
       if(numUsers === 1){
@@ -144,7 +149,7 @@ io.on('connection', (socket) => {
           winner:winner
         });
         // clean up the patterns from the last user
-        checks.delete_pattern(users[winner]);
+        checks.delete_pattern(users[winner]["hash"]);
         numUsers=0;
         console.log("User " + winner + " won!");
         console.log("Cleaned Up!");
@@ -164,15 +169,22 @@ process.on('SIGTERM', () => {
   console.info('SIGTERM signal received.');
   console.log('Closing http server.');
   console.log('Deleting users.');
-  // boolean means [force], see in mongoose doc
-  server.close();
-  for (var user in users)
-  {
-    if (users.hasOwnProperty(user)) {           
-      checks.delete_pattern(users[user]["hash"]);
-    }
-  }
-  console.log("http server closed");
-  process.exit(0);
 
+  (async function() {
+    for (var user in users)
+    {
+      if (users.hasOwnProperty(user)) {    
+        //asyncCall(users[user]["hash"] ,checks.delete_pattern);     
+        await checks.delete_pattern(users[user]["hash"]); 
+        console.log(user);
+      } 
+    }
+    
+  })()
+  
+  setTimeout(()=>{
+    server.close();
+    console.log("HTTP server closed");
+    console.log("Process killed.");
+    process.exit(0)},5000);
 });

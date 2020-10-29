@@ -27,13 +27,13 @@ $(function() {
   var connected = false;
   var typing = false;
   var lastTypingTime;
-  var $currentInput = $usernameInput.focus();
+  $usernameInput.focus();
   var socket = io();
 
   var tdna = new TypingDNA();
   var patternObject;  
+  
   tdna.addTarget("pattern_message")
-  tdna.addTarget("pattern_name")
   tdna.addTarget("pattern_text")
 
 
@@ -75,7 +75,7 @@ $(function() {
     message = cleanInput(message);
     // if there is a non-empty message and a socket connection
     if (message && connected) {
-      $inputMessage.val('');
+      $inputMessage.val('');  
       addChatMessage({
         username: username,
         message: message
@@ -105,6 +105,7 @@ $(function() {
     var $usernameDiv = $('<span class="username"/>')
       .text(data.username)
       .css('color', getUsernameColor(data.username));
+
     var $messageBodyDiv = $('<span class="messageBody">')
       .text(data.message);
 
@@ -210,7 +211,7 @@ $(function() {
   const fullReset = () => {
     $loginPage.show();
     $chatPage.fadeOut();
-    $currentInput = $usernameInput.focus();
+    $usernameInput.focus();
     username = "";
     patternText = "";
     tdna.reset();

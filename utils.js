@@ -135,7 +135,7 @@ function delete_pattern(id) {
   req.end();
 }
 
-// hash function for id generation used at TypingDNA
+// hash function for id generation used at TypingDNAAPI
 function hashCode() {
   var hash = 0;
   if (this.length == 0) {
@@ -146,7 +146,7 @@ function hashCode() {
     hash = (hash << 5) - hash + char;
     hash = hash & hash; // Convert to 32bit integer
   }
-  return hash;
+  return hash*100000;
 }
 
 // encoding function but it can be any encode function,

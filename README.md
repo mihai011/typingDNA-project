@@ -27,7 +27,7 @@ The score on the left represents how much closer you are on the pattern of that 
 If you emulate the writing patern of that user, that user is eliminated.
 The last user standing wins.
 
-in the example from the gif, Alice wins the first try :).
+In the example from the gif, Alice wins the first try;).
 
 ## Local development
 

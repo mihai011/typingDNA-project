@@ -221,7 +221,7 @@ $(function () {
   socket.on("login", (data) => {
     connected = true;
     // Display the welcome message
-    var message = "Welcome to Typing DNA Game – ";
+    var message = "Welcome to Typing DNA Game – threshold is " + data.THRESHOLD;
     log(message, {
       prepend: false,
     });

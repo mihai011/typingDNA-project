@@ -61,6 +61,7 @@ io.on("connection", (socket) => {
     socket.emit("login", {
       numUsers: numUsers,
       username: data.username,
+      THRESHOLD: process.env.THRESHOLD
     });
 
     // echo globally (all clients) that a person has connected

@@ -6,6 +6,9 @@
 
 # Event-driven-programming game with pattern recognition API
 
+![GIF](ezgif-7-03c221d020f4.gif)
+
+
 ## How to use
 
 ```
@@ -23,6 +26,8 @@ After that you start to emulate some other users writing pattern.
 The score on the left represents how much closer you are on the pattern of that specific user.
 If you emulate the writing patern of that user, that user is eliminated.
 The last user standing wins.
+
+in the example from the gif, Alice wins the first try :).
 
 ## Local development
 

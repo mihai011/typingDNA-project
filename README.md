@@ -1,5 +1,6 @@
-
+# Fake Typer Conquest
 # Typing DNA hackathon project
+
 
 ![TypingDNA](TypingDNA-logo-blue-.jpg)
 

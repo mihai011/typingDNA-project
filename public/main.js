@@ -1,44 +1,54 @@
-$(function() {
-  var FADE_TIME = 150; // ms
-  var TYPING_TIMER_LENGTH = 400; // ms
+$(function () {
   var COLORS = [
-    '#e21400', '#91580f', '#f8a700', '#f78b00',
-    '#58dc00', '#287b00', '#a8f07a', '#4ae8c4',
-    '#3b88eb', '#3824aa', '#a700ff', '#d300e7'
+    "#e21400",
+    "#91580f",
+    "#f8a700",
+    "#f78b00",
+    "#58dc00",
+    "#287b00",
+    "#a8f07a",
+    "#4ae8c4",
+    "#3b88eb",
+    "#3824aa",
+    "#a700ff",
+    "#d300e7",
+    "#F0330B",
+    "#A569BD",
+    "#28B463",
+    "#28B463",
+    "#5DADE2",
+    "#5DADE2",
+    "#2C3E50",
+    "#641E16",
   ];
-
 
   // Initialize variables
   var $window = $(window);
-  var $usernameInput = $('.usernameInput'); // Input for username
-  var $messages = $('.messages'); // Messages area
-  var $inputMessage = $('.inputMessage'); // Input message input box
-  var $inputText = $('.inputText'); //Input text for input box
-  var $scoreTable = $('.scoreTable'); // shows the curreent score with the rest of the players
-  var $wl = $('.winorloss');//message for winner or loser
+  var $usernameInput = $(".usernameInput"); // Input for username
+  var $messages = $(".messages"); // Messages area
+  var $inputMessage = $(".inputMessage"); // Input message input box
+  var $inputText = $(".inputText"); //Input text for input box
+  var $scoreTable = $(".scoreTable"); // shows the curreent score with the rest of the players
+  var $wl = $(".winorloss"); //message for winner, loser or just info
 
-  
-  var $loginPage = $('.login.page'); // The login page
-  var $chatPage = $('.chat.page'); // The chatroom page
+  var $loginPage = $(".login.page"); // The login page
+  var $chatPage = $(".chat.page"); // The chatroom page
 
   // Prompt for setting a username
   var username;
   var patternText;
   var connected = false;
-  var typing = false;
-  var lastTypingTime;
   $usernameInput.focus();
   var socket = io();
 
   var tdna = new TypingDNA();
-  var patternObject;  
-  
-  tdna.addTarget("pattern_message")
-  tdna.addTarget("pattern_text")
+  var patternObject;
 
+  tdna.addTarget("pattern_message");
+  tdna.addTarget("pattern_text");
 
   const addParticipantsMessage = (data) => {
-    var message = '';
+    var message = "";
     if (data.numUsers === 1) {
       message += "there's 1 participant";
     } else {
@@ -46,7 +56,7 @@ $(function() {
     }
 
     log(message);
-  }
+  };
 
   // Sets the client's username
   const setUsernameAndPattern = () => {
@@ -56,17 +66,13 @@ $(function() {
     if (username && patternText) {
       $loginPage.fadeOut();
       $chatPage.show();
-      $loginPage.off('click');
+      $loginPage.off("click");
       $currentInput = $inputMessage.focus();
-      
-      // Tell the server your username
-      socket.emit('add user', 
-      {username:username,
-      pattern:patternObject
-    });
-    }
-  }
 
+      // Tell the server your username
+      socket.emit("add user", { username: username, pattern: patternObject });
+    }
+  };
 
   // Sends a chat message
   const sendMessage = () => {
@@ -75,62 +81,46 @@ $(function() {
     message = cleanInput(message);
     // if there is a non-empty message and a socket connection
     if (message && connected) {
-      $inputMessage.val('');  
+      $inputMessage.val("");
       addChatMessage({
         username: username,
-        message: message
+        message: message,
       });
       // tell server to execute 'new message' and send along one parameter
-      socket.emit('new message', {message:message, pattern:patternObject});
-
+      socket.emit("new message", { message: message, pattern: patternObject });
     }
-  }
+  };
 
   // Log a message
-    const log = (message, options) => {
-    var $el = $('<li>').addClass('log').text(message);
+  const log = (message, options) => {
+    var $el = $("<li>").addClass("log").text(message);
     addMessageElement($el, options);
-  }
+  };
 
   // Adds the visual chat message to the message list
   const addChatMessage = (data, options) => {
     // Don't fade the message in if there is an 'X was typing'
-    var $typingMessages = getTypingMessages(data);
-    options = options || {};
-    if ($typingMessages.length !== 0) {
-      options.fade = false;
-      $typingMessages.remove();
-    }
+    // var $typingMessages = getTypingMessages(data);
+    // options = options || {};
+    // if ($typingMessages.length !== 0) {
+    //   options.fade = false;
+    //   $typingMessages.remove();
+    // }
 
     var $usernameDiv = $('<span class="username"/>')
       .text(data.username)
-      .css('color', getUsernameColor(data.username));
+      .css("color", getUsernameColor(data.username));
 
-    var $messageBodyDiv = $('<span class="messageBody">')
-      .text(data.message);
+    var $messageBodyDiv = $('<span class="messageBody">').text(data.message);
 
-    var typingClass = data.typing ? 'typing' : '';
+    var typingClass = data.typing ? "typing" : "";
     var $messageDiv = $('<li class="message"/>')
-      .data('username', data.username)
+      .data("username", data.username)
       .addClass(typingClass)
       .append($usernameDiv, $messageBodyDiv);
 
     addMessageElement($messageDiv, options);
-  }
-
-  // Adds the visual chat typing message
-  const addChatTyping = (data) => {
-    data.typing = true;
-    data.message = 'is typing';
-    addChatMessage(data);
-  }
-
-  // Removes the visual chat typing message
-  const removeChatTyping = (data) => {
-    getTypingMessages(data).fadeOut(function () {
-      $(this).remove();
-    });
-  }
+  };
 
   // Adds a message element to the messages and scrolls to the bottom
   // el - The element to add as a message
@@ -144,70 +134,40 @@ $(function() {
     if (!options) {
       options = {};
     }
-    if (typeof options.fade === 'undefined') {
+    if (typeof options.fade === "undefined") {
       options.fade = true;
     }
-    if (typeof options.prepend === 'undefined') {
+    if (typeof options.prepend === "undefined") {
       options.prepend = true;
     }
 
     // Apply options
-    if (options.fade) {
-      $el.hide().fadeIn(FADE_TIME);
-    }
     if (options.prepend) {
       $messages.prepend($el);
     } else {
       $messages.append($el);
     }
     $messages[0].scrollTop = $messages[0].scrollHeight;
-  }
+  };
 
   // Prevents input from having injected markup
   const cleanInput = (input) => {
-    return $('<div/>').text(input).html();
-  }
-
-  // Updates the typing event
-  const updateTyping = () => {
-    if (connected) {
-      if (!typing) {
-        typing = true;
-        socket.emit('typing');
-      }
-      lastTypingTime = (new Date()).getTime();
-
-      setTimeout(() => {
-        var typingTimer = (new Date()).getTime();
-        var timeDiff = typingTimer - lastTypingTime;
-        if (timeDiff >= TYPING_TIMER_LENGTH && typing) {
-          socket.emit('stop typing');
-          typing = false;
-        }
-      }, TYPING_TIMER_LENGTH);
-    }
-  }
-
-  // Gets the 'X is typing' messages of a user
-  const getTypingMessages = (data) => {
-    return $('.typing.message').filter(function (i) {
-      return $(this).data('username') === data.username;
-    });
-  }
+    return $("<div/>").text(input).html();
+  };
 
   // Gets the color of a username through our hash function
   const getUsernameColor = (username) => {
     // Compute hash code
     var hash = 7;
     for (var i = 0; i < username.length; i++) {
-       hash = username.charCodeAt(i) + (hash << 5) - hash;
+      hash = username.charCodeAt(i) + (hash << 5) - hash;
     }
     // Calculate color
     var index = Math.abs(hash % COLORS.length);
     return COLORS[index];
-  }
+  };
 
-  //full reset function 
+  //full reset function in case of win,loss or diconnection
   const fullReset = () => {
     $loginPage.show();
     $chatPage.fadeOut();
@@ -216,37 +176,39 @@ $(function() {
     patternText = "";
     tdna.reset();
     $inputText.val("");
-  }
+  };
 
   // Keyboard events
 
-  $window.keydown(event => {
-
+  $window.keydown((event) => {
     // When the client hits ENTER on their keyboard
     if (event.which === 13) {
       if (username && patternText) {
-        patternObject = tdna.getTypingPattern({type:0, targetId:"pattern_message"});
+        patternObject = tdna.getTypingPattern({
+          type: 0,
+          targetId: "pattern_message",
+        });
         sendMessage();
         tdna.reset();
-        socket.emit('stop typing');
+        socket.emit("stop typing");
         typing = false;
       } else {
-        if ($usernameInput.val() != ""){
+        if ($usernameInput.val() != "") {
           $inputText.focus();
-        }else{
+        } else {
           $usernameInput.focus();
-          }
-        if ($usernameInput.val() != "" && $inputText.val() != ""){
-          patternObject = tdna.getTypingPattern({type:0, targetId:"pattern_text"});
-          setUsernameAndPattern();}
-          tdna.reset();
+        }
+        if ($usernameInput.val() != "" && $inputText.val() != "") {
+          patternObject = tdna.getTypingPattern({
+            type: 0,
+            targetId: "pattern_text",
+          });
+          setUsernameAndPattern();
+        }
+        tdna.reset();
       }
     }
-
-
   });
-  // Click events
-
 
   // Focus input when clicking on the message input's border
   $inputMessage.click(() => {
@@ -256,90 +218,73 @@ $(function() {
   // Socket events
 
   // Whenever the server emits 'login', log the login message
-  socket.on('login', (data) => {
+  socket.on("login", (data) => {
     connected = true;
     // Display the welcome message
     var message = "Welcome to Typing DNA Game – ";
     log(message, {
-      prepend: false
+      prepend: false,
     });
     addParticipantsMessage(data);
   });
 
   // Whenever the server emits 'new message', update the chat body
-  socket.on('new message', (data) => {
+  socket.on("new message", (data) => {
     addChatMessage(data);
   });
 
   // Whenever the server emits 'user joined', log it in the chat body
-  socket.on('user joined', (data) => {
-    log(data.username + ' joined');
+  socket.on("user joined", (data) => {
+    log(data.username + " joined");
     addParticipantsMessage(data);
     console.log(data.users);
   });
 
-  socket.on("elimination",(data) => {
-    if (data.loser === username){
-    $wl.text("You lost! "+ data.winner + " eliminated you!");
-    socket.emit("delete pattern", {user:username});
-    fullReset();
-    }else{
-      if (data.winner === username){
-        $(".scoreTable " + "#"+ data.encoded).remove();
+  socket.on("elimination", (data) => {
+    if (data.loser === username) {
+      $wl.text("You lost! " + data.winner + " eliminated you!");
+      socket.emit("delete pattern", { user: username });
+      fullReset();
+    } else {
+      if (data.winner === username) {
+        $(".scoreTable " + "#" + data.encoded).remove();
         log(data.loser + " is eliminated by you!");
-      }else{
-        $(".scoreTable " + "#"+ data.encoded).remove();
-        log(data.loser + " is eliminated by " + data.winner+"!");
+      } else {
+        $(".scoreTable " + "#" + data.encoded).remove();
+        log(data.loser + " is eliminated by " + data.winner + "!");
       }
-      
     }
-  })
+  });
 
-  socket.on('winner',(data) => {
-    
-    if (data.winner === username){
+  socket.on("winner", (data) => {
+    if (data.winner === username) {
       $wl.text("You won!");
     }
     fullReset();
   });
 
-  socket.on('update score', (data)=>{
-
-    if($(".scoreTable " + "#"+ data.encoded).length){
-      $(".scoreTable " + "#"+ data.encoded)
-      .text(data.user + " " + data.score);
-      
+  socket.on("update score", (data) => {
+    if ($(".scoreTable " + "#" + data.encoded).length) {
+      $(".scoreTable " + "#" + data.encoded).text(data.user + " " + data.score);
+    } else {
+      $scoreTable.append("<li id=" + data.encoded + " ></li>");
+      $(".scoreTable " + "#" + data.encoded)
+        .text(data.user + " " + data.score)
+        .css("color", getUsernameColor(data.user));
     }
-    else{
-      $scoreTable.append("<li id="+data.encoded+" ></li>");
-      $(".scoreTable " + "#"+ data.encoded).text(data.user + " " + data.score)
-      .css('color', getUsernameColor(data.user));
-    }
-    
   });
 
   // Whenever the server emits 'user left', log it in the chat body
-  socket.on('user left', (data) => {
-    log(data.username + ' left');
+  socket.on("user left", (data) => {
+    log(data.username + " left");
     addParticipantsMessage(data);
     removeChatTyping(data);
   });
 
-  // Whenever the server emits 'typing', show the typing message
-  socket.on('typing', (data) => {
-    addChatTyping(data);
-  });
-
-  // Whenever the server emits 'stop typing', kill the typing message
-  socket.on('stop typing', (data) => {
-    removeChatTyping(data);
-  });
-
-  socket.on('disconnect', () => {
-    log('you have been disconnected');
+  // when the user disconnected reset page with message
+  socket.on("disconnect", () => {
+    log("you have been disconnected");
     fullReset();
     $wl.text("Oops! looks like you have been disconnected!");
   });
-
-
 });

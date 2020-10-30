@@ -176,6 +176,7 @@ $(function () {
     patternText = "";
     tdna.reset();
     $inputText.val("");
+    connected = false;
   };
 
   // Keyboard events

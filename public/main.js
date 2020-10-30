@@ -99,13 +99,6 @@ $(function () {
 
   // Adds the visual chat message to the message list
   const addChatMessage = (data, options) => {
-    // Don't fade the message in if there is an 'X was typing'
-    // var $typingMessages = getTypingMessages(data);
-    // options = options || {};
-    // if ($typingMessages.length !== 0) {
-    //   options.fade = false;
-    //   $typingMessages.remove();
-    // }
 
     var $usernameDiv = $('<span class="username"/>')
       .text(data.username)
@@ -191,7 +184,6 @@ $(function () {
         });
         sendMessage();
         tdna.reset();
-        socket.emit("stop typing");
         typing = false;
       } else {
         if ($usernameInput.val() != "") {

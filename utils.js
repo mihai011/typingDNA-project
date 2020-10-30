@@ -38,7 +38,7 @@ function check_patterns(io, socket, message_pattern, users) {
         res.on("end", function () {
           responseData = JSON.parse(responseData);
           console.log(responseData);
-          if (responseData.net_score >= parseInt(process.env.THRESHOLD)) {
+          if (responseData.net_score >= quality) {
             io.emit("elimination", {
               encoded: encoded,
               winner: socket.username,

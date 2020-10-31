@@ -5,6 +5,7 @@ var base_url = "api.typingdna.com";
 var apiKey = process.env.APIKEY;
 var apiSecret = process.env.APISECRET;
 var quality = parseInt(process.env.QUALITY);
+var threshold = parseInt(process.env.THRESHOLD);
 
 function check_patterns(io, socket, message_pattern, users) {
   Object.keys(users).forEach((user) => {
@@ -38,7 +39,7 @@ function check_patterns(io, socket, message_pattern, users) {
         res.on("end", function () {
           responseData = JSON.parse(responseData);
           console.log(responseData);
-          if (responseData.net_score >= quality) {
+          if (responseData.net_score >= threshold) {
             io.emit("elimination", {
               encoded: encoded,
               winner: socket.username,
